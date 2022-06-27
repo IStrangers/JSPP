@@ -21,7 +21,13 @@ function updateHook(callBackHook : Function) {
     if(callBackHook == null) {
         return
     }
-    updateHooks.push(callBackHook)
+    updateHooks.push(() => {
+        try {
+            callBackHook()
+        } catch (error) {
+            console.log(error)
+        }
+    })
 }
 
 export {
