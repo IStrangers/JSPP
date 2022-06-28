@@ -4,13 +4,16 @@ import { createVirtualNode, renderVirtualNode } from "./dom/index"
 import { NodeType } from "./dom/virtual-node"
 
 updateHook(() => {
-    const node = createVirtualNode("ul", NodeType.ELEMENT, "", [], [
-        createVirtualNode("li", NodeType.ELEMENT, "", [], [
-            createVirtualNode("", NodeType.TEXT, "123", [], []),
+    const node = createVirtualNode("div", NodeType.ELEMENT, null, null, [
+        createVirtualNode("ul", NodeType.ELEMENT, null, null, [
+            createVirtualNode("li", NodeType.ELEMENT, null, null, [
+                createVirtualNode(null, NodeType.TEXT, "123", null, null),
+            ]),
+            createVirtualNode("li", NodeType.ELEMENT, null, null, [
+                createVirtualNode(null, NodeType.NUMBER, "456", null, null),
+            ])
         ]),
-        createVirtualNode("li", NodeType.ELEMENT, "", [], [
-            createVirtualNode("", NodeType.NUMBER, "456", [], []),
-        ])
+        createVirtualNode(null,NodeType.NUMBER, "000", null, null)
     ])
     renderVirtualNode(document.getElementById("app"), node)
 })

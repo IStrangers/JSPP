@@ -11,20 +11,20 @@ enum NodeType {
 }
 
 interface VirtualNode {
-  tag : string
+  tag : string | null
   type : NodeType
-  data : string
-  attribute : NodeAttribute[]
-  childrenVirtualNode : VirtualNode[]
+  data : string | null
+  attribute : NodeAttribute[] | null
+  childrenVirtualNode : VirtualNode[] | null
 }
 
 function createVirtualNode
 (
-  tag : string,
+  tag : string | null,
   type : NodeType,
-  data : string,
-  attribute : NodeAttribute[],
-  childrenVirtualNode : VirtualNode[]
+  data : string | null,
+  attribute : NodeAttribute[] | null,
+  childrenVirtualNode : VirtualNode[] | null
 ) : VirtualNode {
   return {
     tag,
