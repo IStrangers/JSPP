@@ -14,7 +14,8 @@ interface VirtualNode {
   tag : string
   type: NodeType
   attribute: NodeAttribute[]
-  childrenVirtualDOM : VirtualNode[]
+  childrenVirtualNode
+ : VirtualNode[]
 }
 
 function createVirtualNode
@@ -22,13 +23,14 @@ function createVirtualNode
   tag : string,
   type: NodeType,
   attribute: NodeAttribute[],
-  childrenVirtualDOM : VirtualNode[]
+  childrenVirtualNode
+ : VirtualNode[]
 ) : VirtualNode {
   return {
     tag,
     type,
     attribute,
-    childrenVirtualDOM
+    childrenVirtualNode
   }
 }
 
