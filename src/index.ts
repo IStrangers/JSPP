@@ -1,7 +1,6 @@
 import { reactive } from "./reactive"
 import { updateHook } from "./hooks"
-import { createVirtualNode, renderVirtualNode } from "./dom/index"
-import { NodeType } from "./dom/virtual-node"
+import { createVirtualNode, renderVirtualNode, NodeType } from "./dom/index"
 
 updateHook(() => {
     const node = createVirtualNode("div", NodeType.ELEMENT, null, null, [

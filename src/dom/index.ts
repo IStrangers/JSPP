@@ -1,2 +1,2 @@
-export {createVirtualNode} from "./virtual-node"
-export {renderVirtualNode} from "./render-node"
+export * from "./virtual-node"
+export * from "./render-node"
