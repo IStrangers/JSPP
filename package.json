@@ -4,8 +4,8 @@
   "description": "{**When you're done, you can delete the content in this README and update the file with details for others getting started with your repository**}",
   "main": "index.js",
   "scripts": {
-    "build": "tsc -p ./tsconfig.json",
-    "start": "npm run build && node ./dist/index.js"
+    "build": "rollup --config",
+    "start": "npm run build && node ./dist/JSPP.cjs.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,14 @@
   "license": "ISC",
   "dependencies": {
     "typescript": "^4.7.4"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^22.0.1",
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@rollup/plugin-replace": "^4.0.0",
+    "@rollup/plugin-typescript": "^8.3.3",
+    "rollup": "^2.75.7",
+    "rollup-plugin-sourcemaps": "^0.6.3",
+    "tslib": "^2.4.0"
   }
 }

@@ -1,6 +1,6 @@
 import {NodeType,VirtualNode} from "../virtual-node"
 
-function createHTMLElement(virtualNode : VirtualNode) : HTMLElement | Text | Comment | undefined{
+function createElement(virtualNode : VirtualNode) : Node {
   switch(virtualNode.type) {
     case NodeType.ELEMENT:
       return document.createElement(virtualNode.tag)
@@ -12,8 +12,19 @@ function createHTMLElement(virtualNode : VirtualNode) : HTMLElement | Text | Com
   }
 }
 
-function renderVirtualNode(virtualNode : VirtualNode) {
-  
+function renderVirtualNode(mountElement : Node | null,virtualNode : VirtualNode) {
+  if(mountElement == null) {
+    return
+  }
+  const element = createElement(virtualNode)
+  mountElement.appendChild(element)
+  const childrenVirtualNode = virtualNode.childrenVirtualNode
+  if(childrenVirtualNode.length > 0) {
+    for(let i = 0; i < childrenVirtualNode.length; i++) {
+      virtualNode = childrenVirtualNode[i]
+      renderVirtualNode(element,virtualNode)
+    }
+  }
 }
 
 export {
