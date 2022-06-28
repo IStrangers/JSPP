@@ -18,10 +18,15 @@ function isArray(value : any) : boolean {
   return Array.isArray(value)
 }
 
+function isFunction(value : any) : boolean {
+  return typeof value === 'function'
+}
+
 export {
   isObject,
   isNumber,
   isString,
   isBoolean,
   isArray,
+  isFunction
 }

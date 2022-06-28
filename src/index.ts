@@ -5,10 +5,10 @@ import { createVirtualNode, renderVirtualNode, NodeType } from "./dom/index"
 updateHook(() => {
     const node = createVirtualNode("div", NodeType.ELEMENT, null, null, [
         createVirtualNode("ul", NodeType.ELEMENT, null, null, [
-            createVirtualNode("li", NodeType.ELEMENT, null, null, [
+            createVirtualNode("li", NodeType.ELEMENT, null, [{name:"customAttr",value:"custom"},{name:"className",value:"JSPP li"},{name:"style",value:{background:"red"}},{name:"@click",value:()=> alert("click")}], [
                 createVirtualNode(null, NodeType.TEXT, "123", null, null),
             ]),
-            createVirtualNode("li", NodeType.ELEMENT, null, null, [
+            createVirtualNode("li", NodeType.ELEMENT, null, [{name:"customAttr",value:"custom"},{name:"className",value:"JSPP li"},{name:"style",value:{background:"red"}},{name:"@click",value:()=> alert("click")}], [
                 createVirtualNode(null, NodeType.NUMBER, "456", null, null),
             ])
         ]),

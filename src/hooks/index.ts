@@ -25,7 +25,7 @@ function updateHook(callBackHook : Function) {
         try {
             callBackHook()
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
     })
 }

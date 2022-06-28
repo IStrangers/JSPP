@@ -1,6 +1,6 @@
 interface NodeAttribute {
-  name : string
-  value : string
+  name: any
+  value : any
 }
 
 enum NodeType {
