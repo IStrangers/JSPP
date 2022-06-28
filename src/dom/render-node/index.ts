@@ -38,7 +38,7 @@ function mountNodeAttribute(mountNode : HTMLElement,attribute : NodeAttribute[])
           }
         }
         break
-      case "@click":
+      case (attrName.startsWith("@") ? attrName : "@" + attrName):
         if(isFunction(attrValue)) {
           const eventName = attrName.substring(1)
           mountNode.addEventListener(eventName,attrValue)
