@@ -22,11 +22,16 @@ function isFunction(value : any) : boolean {
   return typeof value === 'function'
 }
 
+function removeExtraSpaces(value : string) : string {
+  return value.replace(/[\s]+/g," ")
+}
+
 export {
   isObject,
   isNumber,
   isString,
   isBoolean,
   isArray,
-  isFunction
+  isFunction,
+  removeExtraSpaces,
 }

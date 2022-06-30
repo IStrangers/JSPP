@@ -23,7 +23,7 @@ function createNode(virtualNode : VirtualNode) : Node | undefined {
   }
 }
 
-function mountNodeAttribute(mountNode : HTMLElement,attribute : NodeAttribute[]) {
+function mountNodeAttribute(mountNode : HTMLElement,attribute : Array<NodeAttribute>) {
   for(let i = 0; i < attribute.length; i++) {
     const attr = attribute[i]
     const attrName = attr.name
