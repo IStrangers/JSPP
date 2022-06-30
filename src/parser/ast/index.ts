@@ -1,35 +1,27 @@
-enum AstType {
-  ELEMENT,
-  TEXT,
-  COMMENT,
-  DELIMITER,
+interface AstNode {
 }
 
-interface Ast {
-  type : AstType
-}
-
-interface ElementAst extends Ast {
+interface ElementAstNode extends AstNode {
   tag : string
   attribute : Array<string>
 }
 
-interface TextAst extends Ast {
+interface TextAstNode extends AstNode {
   content : string
 }
 
-interface CommentAst extends Ast {
+interface CommentAstNode extends AstNode {
   content : string
 }
 
-interface DelimiterAst extends Ast {
+interface DelimiterAstNode extends AstNode {
   expression : string
 }
 
 export {
-  Ast,
-  ElementAst,
-  TextAst,
-  CommentAst,
-  DelimiterAst,
+  AstNode,
+  ElementAstNode,
+  TextAstNode,
+  CommentAstNode,
+  DelimiterAstNode,
 }

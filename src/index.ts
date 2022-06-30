@@ -36,8 +36,8 @@ updateHook(() => {
             789
         </div>
     `
-    const nodes = parse(template)
-    console.log(nodes)
+    const astNodes = parse(template)
+    console.log(astNodes)
     //renderVirtualNode(document.getElementById("app"),node)
 })
 const obj = reactive({
