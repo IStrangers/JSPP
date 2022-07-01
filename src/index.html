@@ -1,0 +1,15 @@
+<div id="app">
+    <!-- Test JSPP -->
+    {{userName}}
+    <ul id="contacts" class="contacts">
+        <li 
+        custom="custom"
+        #for="contact in contacts"
+        :class="getClass(contact)"
+        @click="contactClick">
+            {{contact}}
+        </li>
+    </ul>
+    <!-- Test JSPP -->
+</div>
+<script src="./index.iife.js"></script>

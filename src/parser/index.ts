@@ -43,6 +43,7 @@ function createDefaultParseOptions() : ParseOptions {
 }
 
 function createParseContext(content : string,options : ParseOptions) : ParseContext {
+  content = `<RootNode>${content}</RootNode>`
   return {
     content,
     options,
@@ -137,7 +138,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
         }
         this.removeSpaces()
 
-        const isDirectives = name.startsWith("@") || name.startsWith("#")
+        const isDirectives = name.startsWith("@") || name.startsWith(":") || name.startsWith("#")
         if(isDirectives) {
           directives.push({name,value})
         } else {
