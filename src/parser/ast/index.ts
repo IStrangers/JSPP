@@ -3,7 +3,10 @@ interface AstNode {
 
 interface ElementAstNode extends AstNode {
   tag : string
+  isSelfClosing: boolean
+  isComponent : boolean
   attribute : Array<string>
+  childrenAstNode : Array<AstNode>
 }
 
 interface TextAstNode extends AstNode {
@@ -14,7 +17,7 @@ interface CommentAstNode extends AstNode {
   content : string
 }
 
-interface DelimiterAstNode extends AstNode {
+interface InterpolationAstNode extends AstNode {
   expression : string
 }
 
@@ -23,5 +26,5 @@ export {
   ElementAstNode,
   TextAstNode,
   CommentAstNode,
-  DelimiterAstNode,
+  InterpolationAstNode,
 }

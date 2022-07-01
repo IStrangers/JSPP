@@ -22,8 +22,18 @@ function isFunction(value : any) : boolean {
   return typeof value === 'function'
 }
 
+function isUppercaseStart(value : string) : boolean {
+  if(value) {
+    const c = value.charAt(0)
+    if(c >= "A" && c <= "Z") {
+      return true
+    }
+  }
+  return false
+}
+
 function removeExtraSpaces(value : string) : string {
-  return value.replace(/[\s]+/g," ")
+  return value.replace(/[\s]+/g," ").trim()
 }
 
 export {
@@ -33,5 +43,6 @@ export {
   isBoolean,
   isArray,
   isFunction,
+  isUppercaseStart,
   removeExtraSpaces,
 }

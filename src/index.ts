@@ -27,16 +27,8 @@ updateHook(() => {
     //     ]),
     //     createVirtualNode(null, NodeType.NUMBER, "000", null, null)
     // ])
-    const template = `
-        <div>
-            <ul>
-                <li class="JSPP li" style="background:red">123</li>
-                <li class="JSPP li" style="background:green">456</li>
-            </ul>
-            789
-        </div>
-    `
-    const astNodes = parse(template)
+    const template = document.getElementById("app")?.innerHTML
+    const astNodes = parse(template ? template : "")
     console.log(astNodes)
     //renderVirtualNode(document.getElementById("app"),node)
 })
