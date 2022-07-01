@@ -11,7 +11,7 @@ interface ElementAstNode extends AstNode {
   isSelfClosing: boolean
   isComponent : boolean
   attribute : Array<ElementAttribute>
-  childrenAstNode : Array<AstNode>
+  childrenNode : Array<AstNode>
 }
 
 interface TextAstNode extends AstNode {

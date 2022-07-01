@@ -84,9 +84,9 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const isSelfClosing = this.content.startsWith("/>")
       this.forward(isSelfClosing ? 2 : 1)
 
-      let childrenAstNode = []
+      let childrenNode = []
       if(isSelfClosing == false) {
-        childrenAstNode = this.parseElementChildrenAstNode()
+        childrenNode = this.parseElementChildrenAstNode()
         this.parseElementTag(true)
       }
 
@@ -95,7 +95,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
         isSelfClosing,
         isComponent,
         attribute,
-        childrenAstNode
+        childrenNode
       }
     },
     parseElementTag: function(isCloseTag : boolean) : string {
