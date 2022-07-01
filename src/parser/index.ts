@@ -128,7 +128,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
           this.forward(1)
           this.removeSpaces()
           let endIndex = 0;
-          if(this.content.startsWith(`'`) || this.content.startsWith(`"`)){
+          if(this.content.startsWith(`'`) || this.content.startsWith(`"`)) {
             this.forward(1)
             endIndex = this.content.indexOf(`'`)
             endIndex = endIndex == -1 ? this.content.indexOf(`"`) : endIndex
@@ -142,15 +142,9 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
 
         const isDirectives = name.startsWith("@") || name.startsWith("#")
         if(isDirectives) {
-          directives.push({
-            name,
-            value
-          })
+          directives.push({name,value})
         } else {
-          attributes.push({
-            name,
-            value
-          })
+          attributes.push({name,value})
         }
       }
       return [attributes,directives]
@@ -159,12 +153,12 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const astNodes : Array<AstNode> = []
       while(!this.isEnd()) {
         let astNode : AstNode;
-        if(this.isElement()) {
+        if(this.isComment()) {
+          astNode = this.parseComment()
+        } else if(this.isElement()) {
           astNode = this.parseElement()
         } else if(this.isInterpolation()) {
           astNode = this.parseInterpolation()
-        } else if(this.isComment()) {
-          astNode = this.parseComment()
         } else {
           astNode = this.parseText()
         }
@@ -177,7 +171,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       this.forward(interpolationStart.length)
       const endIndex = this.content.indexOf(interpolationEnd)
       const expression = this.content.substring(0,endIndex)
-      this.forward(interpolationEnd.length)
+      this.forward(endIndex + interpolationEnd.length)
       return {
         nodeType: AstNodeType.INTERPOLATION,
         expression
@@ -188,7 +182,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       this.forward(commentStart.length)
       const endIndex = this.content.indexOf(commentEnd)
       const content = this.content.substring(0,endIndex)
-      this.forward(commentEnd.length)
+      this.forward(endIndex + commentEnd.length)
       return {
         nodeType: AstNodeType.COMMENT,
         content
