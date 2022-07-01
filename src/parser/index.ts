@@ -1,4 +1,4 @@
-import { AstNode, CommentAstNode, InterpolationAstNode, ElementAstNode, TextAstNode } from "./ast"
+import { AstNode, CommentAstNode, InterpolationAstNode, ElementAttribute, ElementAstNode, TextAstNode } from "./ast"
 import { isUppercaseStart,removeExtraSpaces } from "../util"
 
 interface ParseOptions {
@@ -50,7 +50,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
     content,
     options,
     isEnd: function() : boolean {
-      return this.content.length === 0
+      return this.content.startsWith("</") || this.content.length === 0
     },
     isElement: function() : boolean {
       return this.content.startsWith("<")
@@ -79,16 +79,17 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
     },
     parseElement: function() : ElementAstNode {
       const tag = this.parseElementTag()
-      const isSelfClosing = this.isSelfClosing(tag)
-      let isComponent = false
-      let attribute = []
+      const isComponent = isUppercaseStart(tag)
+      const attribute = this.parseElementAttribute()
+      const isSelfClosing = this.content.startsWith("/>")
+      this.forward(isSelfClosing ? 2 : 1)
+
       let childrenAstNode = []
       if(isSelfClosing == false) {
-        isComponent = isUppercaseStart(tag)
-        attribute = this.parseElementAttribute()
         childrenAstNode = this.parseElementChildrenAstNode()
-        this.parseElementTag()
+        this.parseElementTag(true)
       }
+
       return {
         tag,
         isSelfClosing,
@@ -97,21 +98,48 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
         childrenAstNode
       }
     },
-    parseElementTag: function() : string {
-      const match = /^<\/*([A-z][^\n\r\t\f \>]*)/.exec(this.content)
+    parseElementTag: function(isCloseTag : boolean) : string {
+      const match = /^<\/*([A-z][^\n\r\t\f />]*)/.exec(this.content)
       let tag = ""
-      let length = 0
       if(match) {
         tag = match[1]
-        length = match[0].length
+        const length = match[0].length + (isCloseTag ? 1 : 0)
+        this.forward(length)
+        this.removeSpaces()
       }
-      this.forward(length)
       return tag
     },
-    parseElementAttribute: function() : Array<string> {
-      const attribute : Array<string> = []
+    parseElementAttribute: function() : Array<ElementAttribute> {
+      const attribute : Array<ElementAttribute> = []
+      const reg = /^[^\t\r\n\f />][^\t\r\n\f />=]*/
       while(!this.content.startsWith(">") && !this.content.startsWith("/>")) {
-        
+        const match = reg.exec(this.content)
+        if(!match) {
+          continue
+        }
+        const name = match[0]
+        let value = null
+        this.forward(match[0].length)
+        this.removeSpaces()
+        if(this.content.startsWith("=")) {
+          this.forward(1)
+          this.removeSpaces()
+          let endIndex = 0;
+          if(this.content.startsWith(`'`) || this.content.startsWith(`"`)){
+            this.forward(1)
+            endIndex = this.content.indexOf(`'`)
+            endIndex = endIndex == -1 ? this.content.indexOf(`"`) : endIndex
+          } else {
+            continue
+          }
+          value = this.content.substring(0,endIndex).replace(/'"/g,"")
+          this.forward(endIndex + 1)
+        }
+        this.removeSpaces()
+        attribute.push({
+          name,
+          value
+        })
       }
       return attribute
     },

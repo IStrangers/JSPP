@@ -1,11 +1,16 @@
 interface AstNode {
 }
 
+interface ElementAttribute {
+  name : string
+  value : any
+}
+
 interface ElementAstNode extends AstNode {
   tag : string
   isSelfClosing: boolean
   isComponent : boolean
-  attribute : Array<string>
+  attribute : Array<ElementAttribute>
   childrenAstNode : Array<AstNode>
 }
 
@@ -23,6 +28,7 @@ interface InterpolationAstNode extends AstNode {
 
 export {
   AstNode,
+  ElementAttribute,
   ElementAstNode,
   TextAstNode,
   CommentAstNode,
