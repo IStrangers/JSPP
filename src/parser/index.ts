@@ -43,9 +43,6 @@ function createDefaultParseOptions() : ParseOptions {
 }
 
 function createParseContext(content : string,options : ParseOptions) : ParseContext {
-  if(options.isRemoveExtraSpaces) {
-    content = removeExtraSpaces(content)
-  }
   return {
     content,
     options,
@@ -161,6 +158,9 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
           astNode = this.parseInterpolation()
         } else {
           astNode = this.parseText()
+          if(options.isRemoveExtraSpaces && removeExtraSpaces((astNode as TextAstNode).content) === ""){
+            continue
+          }
         }
         astNodes.push(astNode)
       }
@@ -214,7 +214,7 @@ function parse(content : string,options? : ParseOptions) : Array<AstNode> {
   if(!options) {
     options = createDefaultParseOptions()
   }
-  const parseContext : ParseContext = createParseContext(content,options)
+  const parseContext : ParseContext = createParseContext(content.trim(),options)
   return parseContext.parseElement()
 }
 
