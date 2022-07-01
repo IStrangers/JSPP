@@ -1,7 +1,20 @@
+enum AstNodeType {
+  ELEMENT,
+  TEXT,
+  COMMENT,
+  INTERPOLATION,
+}
+
 interface AstNode {
+  nodeType : AstNodeType
 }
 
 interface ElementAttribute {
+  name : string
+  value : any
+}
+
+interface ElementDirective {
   name : string
   value : any
 }
@@ -10,7 +23,8 @@ interface ElementAstNode extends AstNode {
   tag : string
   isSelfClosing: boolean
   isComponent : boolean
-  attribute : Array<ElementAttribute>
+  attributes : Array<ElementAttribute>
+  directives : Array<ElementDirective>
   childrenNode : Array<AstNode>
 }
 
@@ -27,8 +41,10 @@ interface InterpolationAstNode extends AstNode {
 }
 
 export {
+  AstNodeType,
   AstNode,
   ElementAttribute,
+  ElementDirective,
   ElementAstNode,
   TextAstNode,
   CommentAstNode,

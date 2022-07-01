@@ -1,4 +1,4 @@
-import { AstNode, CommentAstNode, InterpolationAstNode, ElementAttribute, ElementAstNode, TextAstNode } from "./ast"
+import { AstNode, CommentAstNode, InterpolationAstNode, ElementAttribute, ElementAstNode, TextAstNode, AstNodeType, ElementDirective } from "./ast"
 import { isUppercaseStart,removeExtraSpaces } from "../util"
 
 interface ParseOptions {
@@ -80,7 +80,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
     parseElement: function() : ElementAstNode {
       const tag = this.parseElementTag()
       const isComponent = isUppercaseStart(tag)
-      const attribute = this.parseElementAttribute()
+      const [attributes,directives] = this.parseElementAttribute()
       const isSelfClosing = this.content.startsWith("/>")
       this.forward(isSelfClosing ? 2 : 1)
 
@@ -91,10 +91,12 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       }
 
       return {
+        nodeType: AstNodeType.ELEMENT,
         tag,
         isSelfClosing,
         isComponent,
-        attribute,
+        attributes,
+        directives,
         childrenNode
       }
     },
@@ -109,8 +111,9 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       }
       return tag
     },
-    parseElementAttribute: function() : Array<ElementAttribute> {
-      const attribute : Array<ElementAttribute> = []
+    parseElementAttribute: function() : Array<Array<ElementAttribute> | Array<ElementDirective>> {
+      const attributes : Array<ElementAttribute> = []
+      const directives : Array<ElementDirective> = []
       const reg = /^[^\t\r\n\f />][^\t\r\n\f />=]*/
       while(!this.content.startsWith(">") && !this.content.startsWith("/>")) {
         const match = reg.exec(this.content)
@@ -136,12 +139,21 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
           this.forward(endIndex + 1)
         }
         this.removeSpaces()
-        attribute.push({
-          name,
-          value
-        })
+
+        const isDirectives = name.startsWith("@") || name.startsWith("#")
+        if(isDirectives) {
+          directives.push({
+            name,
+            value
+          })
+        } else {
+          attributes.push({
+            name,
+            value
+          })
+        }
       }
-      return attribute
+      return [attributes,directives]
     },
     parseElementChildrenAstNode: function() : Array<AstNode> {
       const astNodes : Array<AstNode> = []
@@ -167,6 +179,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const expression = this.content.substring(0,endIndex)
       this.forward(interpolationEnd.length)
       return {
+        nodeType: AstNodeType.INTERPOLATION,
         expression
       }
     },
@@ -177,6 +190,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const content = this.content.substring(0,endIndex)
       this.forward(commentEnd.length)
       return {
+        nodeType: AstNodeType.COMMENT,
         content
       }
     },
@@ -192,6 +206,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const content = this.content.substring(0,endTextIndex)
       this.forward(endTextIndex)
       return {
+        nodeType: AstNodeType.TEXT,
         content
       }
     }
