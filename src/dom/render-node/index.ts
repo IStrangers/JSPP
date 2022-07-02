@@ -1,13 +1,13 @@
-import { isObject, isString, isFunction } from "../../util"
-import {NodeType,NodeAttribute,VirtualNode} from "../virtual-node"
+import { isObject } from "../../util"
+import {NodeType,NodeProp,VirtualNode} from "../virtual-node"
 
 function createNode(virtualNode : VirtualNode) : Node | undefined {
   switch(virtualNode.type) {
     case NodeType.ELEMENT:
       if(virtualNode.tag) {
         const node = document.createElement(virtualNode.tag)
-        if(virtualNode.attribute){
-          mountNodeAttribute(node,virtualNode.attribute)
+        if(virtualNode.prop){
+          mountNodeAttribute(node,virtualNode.prop)
         }
         return node
       }
@@ -23,40 +23,37 @@ function createNode(virtualNode : VirtualNode) : Node | undefined {
   }
 }
 
-function mountNodeAttribute(mountNode : HTMLElement,attribute : Array<NodeAttribute>) {
-  for(let i = 0; i < attribute.length; i++) {
-    const attr = attribute[i]
-    const attrName = attr.name
-    const attrValue = attr.value
-    switch(attrName) {
-      case "style":
-        if(isObject(attrValue)) {
-          const styleNames = Object.keys(attrValue)
-          for(let j = 0; j < styleNames.length; j++) {
-            const styleName = styleNames[j]
-            mountNode.style[styleName] = attrValue[styleName]
-          }
+function mountNodeAttribute(mountNode : HTMLElement,prop : NodeProp) {
+
+  const {attributes,events} = prop
+  for(let i = 0; i < attributes.length; i++) {
+    const {attrName,attrValue} = attributes[i]
+    if("style" === attrName) {
+      if(isObject(attrValue)) {
+        const styleNames = Object.keys(attrValue)
+        for(let j = 0; j < styleNames.length; j++) {
+          const styleName = styleNames[j]
+          mountNode.style[styleName] = attrValue[styleName]
         }
-        break
-      case (attrName.startsWith("@") ? attrName : "@" + attrName):
-        if(isFunction(attrValue)) {
-          const eventName = attrName.substring(1)
-          mountNode.addEventListener(eventName,attrValue)
-        }
-        break
-      default:
-        if(attrName in mountNode) {
-          mountNode[attrName] = attrValue
-        } else {
-          mountNode.setAttribute(attrName,attrValue)
-        }
-        break
+      }
+    } else {
+      if(attrName in mountNode) {
+        mountNode[attrName] = attrValue
+      } else {
+        mountNode.setAttribute(attrName,attrValue)
+      }
     }
   }
+
+  for(let i = 0; i < events.length; i++) {
+    const {eventName,eventHandling} = events[i]
+    mountNode.addEventListener(eventName,eventHandling)
+  }
+
 }
 
-function renderVirtualNode(mountNode : Node | null,virtualNode : VirtualNode) {
-  if(mountNode === null) {
+function renderVirtualNode(mountNode : Node | null,virtualNode : VirtualNode | null) {
+  if(mountNode === null || virtualNode === null) {
     return
   }
   const node = createNode(virtualNode)

@@ -6,10 +6,11 @@
         custom="custom"
         #for="contact in contacts"
         :class="getClass(contact)"
-        @click="contactClick">
+        @click="contactClick"
+        @mouseenter="mouseenter(contact)">
             {{contact}}
         </li>
     </ul>
     <!-- Test JSPP -->
 </div>
-<script src="./index.iife.js"></script>
+<script src="./JSPP.es.js"></script>

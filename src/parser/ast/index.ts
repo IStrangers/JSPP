@@ -11,12 +11,12 @@ interface AstNode {
 
 interface ElementAttribute {
   name : string
-  value : any
+  value : string
 }
 
 interface ElementDirective {
   name : string
-  value : any
+  value : string
 }
 
 interface ElementAstNode extends AstNode {

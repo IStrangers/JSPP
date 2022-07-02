@@ -1,19 +1,34 @@
-import { reactive } from "./reactive"
-import { updateHook } from "./hooks"
-import { createVirtualNode, renderVirtualNode, NodeType } from "./dom"
+import { complie } from "./compile"
+import { NodeType,cvh,renderVirtualNode } from "./dom"
 import { parse } from "./parser"
 
-updateHook(() => {
-    const template = document.getElementById("app")?.innerHTML
-    const astNodes = parse(template ? template : "")
-    console.log(astNodes)
-    //renderVirtualNode(document.getElementById("app"),node)
-})
-const obj = reactive({
-    a: 1,
-    b: {
-        a: 123
+function createApp(component : Component) {
+    return {
+        monut: function(selector : string) {
+            const container = document.querySelector(selector)
+            if(!container) {
+                return
+            }
+            const template = container.innerHTML;
+            const astNode = parse(template)
+            const ctx = component.setUp()
+            ctx.cvh = cvh
+            ctx.NodeType = NodeType
+            const virtualNode = complie(ctx,astNode)
+            container.innerHTML = ""
+            renderVirtualNode(container,virtualNode)
+        }
     }
-})
-console.log(obj)
+}
 
+createApp({
+    setUp() {
+        const contactClick = () => {
+            alert("contactClick")
+        }
+        return {
+            userName: "Test JSPP",
+            contactClick
+        }
+    }
+}).monut("#app")

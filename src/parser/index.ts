@@ -119,7 +119,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
           continue
         }
         const name = match[0]
-        let value = null
+        let value = ""
         this.forward(match[0].length)
         this.removeSpaces()
         if(this.content.startsWith("=")) {
@@ -208,9 +208,9 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
   }
 }
 
-function parse(content : string,options? : ParseOptions) : Array<AstNode> {
+function parse(content : string,options? : ParseOptions) : AstNode | null {
   if(!content) {
-    return []
+    return null
   }
   if(!options) {
     options = createDefaultParseOptions()

@@ -1,6 +1,16 @@
 interface NodeAttribute {
-  name: any
-  value : any
+  attrName : string
+  attrValue : any
+}
+
+interface NodeEvent {
+  eventName : string
+  eventHandling : EventListenerOrEventListenerObject
+}
+
+interface NodeProp {
+  attributes: Array<NodeAttribute>
+  events : Array<NodeEvent>
 }
 
 enum NodeType {
@@ -14,7 +24,7 @@ interface VirtualNode {
   tag : string | null
   type : NodeType
   data : string | null
-  attribute : Array<NodeAttribute> | null
+  prop : NodeProp | null
   childrenVirtualNode : Array<VirtualNode> | null
 }
 
@@ -23,21 +33,23 @@ function createVirtualNode
   tag : string | null,
   type : NodeType,
   data : string | null,
-  attribute : Array<NodeAttribute> | null,
+  prop : NodeProp | null,
   childrenVirtualNode : Array<VirtualNode> | null
 ) : VirtualNode {
   return {
     tag,
     type,
     data,
-    attribute,
+    prop,
     childrenVirtualNode
   }
 }
 
 export {
   NodeAttribute,
+  NodeEvent,
+  NodeProp,
   NodeType,
   VirtualNode,
-  createVirtualNode
+  createVirtualNode as cvh
 }
