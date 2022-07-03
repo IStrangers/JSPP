@@ -102,7 +102,7 @@ function renderShowCommand(condition : boolean,renderHandling : Function) {
   const virtualNode : VirtualNode = renderHandling()
   if(condition == false && virtualNode.prop) {
     const styleIndex = virtualNode.prop.attributes.findIndex(attribute => attribute.attrName === "style")
-    if(styleIndex) {
+    if(styleIndex !== -1) {
       virtualNode.prop.attributes[styleIndex].attrValue["display"] = "none"
     } else {
       virtualNode.prop.attributes.push({attrName:"style",attrValue:{display:"none"}})

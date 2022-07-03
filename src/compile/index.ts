@@ -72,6 +72,7 @@ function complieElementAstNode(astNode : ElementAstNode) : string {
         }
         let nextElementSiblingNode = childrenNode[nextSiblingNodeIndex]
         if(
+            nextElementSiblingNode &&
             nextElementSiblingNode.nodeType === AstNodeType.ELEMENT && 
             (
                 getDirectiveMap(astNode.directives)["#else-if"] !== undefined || 
