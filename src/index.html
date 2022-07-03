@@ -1,16 +1,21 @@
-<div id="app">
-    <!-- Test JSPP -->
-    {{userName}}
-    <ul id="contacts" class="contacts">
-        <li 
-        custom="custom"
-        #for="contact in contacts"
-        :class="getClass(contact)"
-        @click="contactClick"
-        @mouseenter="mouseenter(contact)">
-            {{contact}}
-        </li>
-    </ul>
-    <!-- Test JSPP -->
-</div>
+<html>
+    <meta charset="UTF-8">
+    <body>
+        <div id="app">
+            <!-- Test JSPP -->
+            {{userName}}
+            <ul id="contacts" class="contacts">
+                <li 
+                custom="custom"
+                #for="contact in contacts"
+                :class="getClass(contact)"
+                @click="contactClick"
+                @mouseenter="mouseenter(contact)">
+                    {{contact}}
+                </li>
+            </ul>
+            <!-- Test JSPP -->
+        </div>
+    </body>
+</html>
 <script src="./JSPP.es.js"></script>

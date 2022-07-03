@@ -6,6 +6,7 @@ enum AstNodeType {
 }
 
 interface AstNode {
+  parent : ElementAstNode
   nodeType : AstNodeType
 }
 

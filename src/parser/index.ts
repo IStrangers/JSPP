@@ -75,7 +75,8 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
         this.forward(match[0].length)
       }
     },
-    parseElement: function() : ElementAstNode {
+    parseElement: function(parent : ElementAstNode) : ElementAstNode {
+      const thisNode : any = {}
       const tag = this.parseElementTag()
       const isComponent = isUppercaseStart(tag)
       const [attributes,directives] = this.parseElementAttribute()
@@ -84,19 +85,18 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
 
       let childrenNode = []
       if(isSelfClosing == false) {
-        childrenNode = this.parseElementChildrenAstNode()
+        childrenNode = this.parseElementChildrenAstNode(thisNode)
         this.parseElementTag(true)
       }
-
-      return {
-        nodeType: AstNodeType.ELEMENT,
-        tag,
-        isSelfClosing,
-        isComponent,
-        attributes,
-        directives,
-        childrenNode
-      }
+      thisNode.parent = parent
+      thisNode.nodeType = AstNodeType.ELEMENT
+      thisNode.tag = tag
+      thisNode.isSelfClosing = isSelfClosing
+      thisNode.isComponent = isComponent
+      thisNode.attributes = attributes
+      thisNode.directives = directives
+      thisNode.childrenNode = childrenNode
+      return thisNode
     },
     parseElementTag: function(isCloseTag : boolean) : string {
       const match = /^<\/*([A-z][^\n\r\t\f />]*)/.exec(this.content)
@@ -147,18 +147,18 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       }
       return [attributes,directives]
     },
-    parseElementChildrenAstNode: function() : Array<AstNode> {
+    parseElementChildrenAstNode: function(parent : ElementAstNode) : Array<AstNode> {
       const astNodes : Array<AstNode> = []
       while(!this.isEnd()) {
         let astNode : AstNode;
         if(this.isComment()) {
-          astNode = this.parseComment()
+          astNode = this.parseComment(parent)
         } else if(this.isElement()) {
-          astNode = this.parseElement()
+          astNode = this.parseElement(parent)
         } else if(this.isInterpolation()) {
-          astNode = this.parseInterpolation()
+          astNode = this.parseInterpolation(parent)
         } else {
-          astNode = this.parseText()
+          astNode = this.parseText(parent)
           if(options.isRemoveExtraSpaces && removeExtraSpaces((astNode as TextAstNode).content) === ""){
             continue
           }
@@ -167,29 +167,31 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       }
       return astNodes
     },
-    parseInterpolation: function() : InterpolationAstNode {
+    parseInterpolation: function(parent : ElementAstNode) : InterpolationAstNode {
       const {interpolationStart,interpolationEnd} = this.options.delimiters
       this.forward(interpolationStart.length)
       const endIndex = this.content.indexOf(interpolationEnd)
       const expression = this.content.substring(0,endIndex)
       this.forward(endIndex + interpolationEnd.length)
       return {
+        parent,
         nodeType: AstNodeType.INTERPOLATION,
         expression
       }
     },
-    parseComment: function() : CommentAstNode {
+    parseComment: function(parent : ElementAstNode) : CommentAstNode {
       const {commentStart,commentEnd} = this.options.delimiters
       this.forward(commentStart.length)
       const endIndex = this.content.indexOf(commentEnd)
       const content = this.content.substring(0,endIndex)
       this.forward(endIndex + commentEnd.length)
       return {
+        parent,
         nodeType: AstNodeType.COMMENT,
         content
       }
     },
-    parseText: function() : TextAstNode {
+    parseText: function(parent : ElementAstNode) : TextAstNode {
       const tokens = ["<",this.options.delimiters.interpolationStart]
       let endTextIndex = this.content.length;
       for(let i = 0; i < tokens.length; i++) {
@@ -201,6 +203,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       const content = this.content.substring(0,endTextIndex)
       this.forward(endTextIndex)
       return {
+        parent,
         nodeType: AstNodeType.TEXT,
         content
       }

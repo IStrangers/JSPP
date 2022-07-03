@@ -18,13 +18,13 @@ function createNode(virtualNode : VirtualNode) : Node | undefined {
       }
     case NodeType.COMMENT:
       if(virtualNode.data) {
-        return document.createTextNode(virtualNode.data)
+        return document.createComment(virtualNode.data)
       }
   }
 }
 
 function mountNodeAttribute(mountNode : HTMLElement,prop : NodeProp) {
-
+  
   const {attributes,events} = prop
   for(let i = 0; i < attributes.length; i++) {
     const {attrName,attrValue} = attributes[i]
@@ -56,11 +56,16 @@ function renderVirtualNode(mountNode : Node | null,virtualNode : VirtualNode | n
   if(mountNode === null || virtualNode === null) {
     return
   }
-  const node = createNode(virtualNode)
-  if(node === undefined) {
-    return
+  let node
+  if(virtualNode.type === NodeType.FRAGMENT){
+    node = mountNode
+  } else {
+    node = createNode(virtualNode)
+    if(node === undefined) {
+      return
+    }
+    mountNode.appendChild(node)
   }
-  mountNode.appendChild(node)
   const childrenVirtualNode = virtualNode.childrenVirtualNode
   if(childrenVirtualNode && childrenVirtualNode.length > 0) {
     for(let i = 0; i < childrenVirtualNode.length; i++) {
@@ -93,7 +98,21 @@ function renderForCommand(source : number | string | object | Array<any>,renderH
   return virtualNodes
 }
 
+function renderShowCommand(condition : boolean,renderHandling : Function) {
+  const virtualNode : VirtualNode = renderHandling()
+  if(condition == false && virtualNode.prop) {
+    const styleIndex = virtualNode.prop.attributes.findIndex(attribute => attribute.attrName === "style")
+    if(styleIndex) {
+      virtualNode.prop.attributes[styleIndex].attrValue["display"] = "none"
+    } else {
+      virtualNode.prop.attributes.push({attrName:"style",attrValue:{display:"none"}})
+    }
+  }
+  return virtualNode
+}
+
 export {
   renderVirtualNode,
-  renderForCommand
+  renderForCommand,
+  renderShowCommand,
 }

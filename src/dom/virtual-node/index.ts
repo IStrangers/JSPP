@@ -17,7 +17,8 @@ enum NodeType {
   ELEMENT,
   TEXT,
   NUMBER,
-  COMMENT
+  COMMENT,
+  FRAGMENT,
 }
 
 interface VirtualNode {

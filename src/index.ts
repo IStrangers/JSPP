@@ -1,6 +1,6 @@
 import { parse } from "./parser"
 import { complie } from "./compile"
-import { NodeType,cvh,renderVirtualNode,renderForCommand } from "./dom"
+import { NodeType,cvh,renderVirtualNode,renderForCommand,renderShowCommand } from "./dom"
 import { reactive } from "./reactive"
 import { updateHook } from "./hooks"
 import { Component } from "./component"
@@ -29,6 +29,7 @@ export const JSPP = (window["JSPP"] = {
     cvh,
     renderVirtualNode,
     renderForCommand,
+    renderShowCommand,
     NodeType,
     reactive,
     updateHook,

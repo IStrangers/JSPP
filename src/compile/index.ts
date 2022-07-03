@@ -1,21 +1,22 @@
-import { VirtualNode } from "../dom";
+import { NodeType, VirtualNode } from "../dom";
 import { AstNode, AstNodeType, CommentAstNode, ElementAstNode, ElementDirective, InterpolationAstNode, TextAstNode } from "../parser/ast";
 
 function complie(ctx : any,astNode : AstNode | null) : VirtualNode | null {
     if(astNode == null) {
         return null
     }
-    const code = `{
+    const code = `
         const {
             cvh,
             renderVirtualNode,
             renderForCommand,
+            renderShowCommand,
             NodeType,
         } = JSPP
         with(ctx) {
             return ${complieAstNode(astNode)}
         }
-    }`
+    `
     const virtualNode = new Function("ctx",code)(ctx)
     return virtualNode
 }
@@ -41,37 +42,93 @@ function complieAstNode(astNode : AstNode) : string {
 }
 
 function complieElementAstNode(astNode : ElementAstNode) : string {
-    const directives = astNode.directives.filter(directive => directive.name.startsWith("#"))
-    const directiveMap = {}
-    directives.forEach(directive => {
-        const {name,value} = directive
-        directiveMap[name] = value
-    })
+    const directiveMap = getDirectiveMap(astNode.directives)
     const forCommand = directiveMap["#for"]
-    const ifCommand = directiveMap["#if"]
+    const ifCommand = directiveMap["#if"] || directiveMap["#else-if"]
     const showCommand = directiveMap["#show"]
+
+    if(forCommand !== undefined) {
+        const [command,index] = forCommand
+        astNode.directives.splice(index,1)
+        const [args,source] = command.split(/\sin\s/)
+        return `cvh(null,NodeType.FRAGMENT,null,null,renderForCommand(${source},${args} => ${complieElementAstNode(astNode)}))`
+    }
+
+    if(ifCommand !== undefined) {
+        const [command,index] = ifCommand
+        astNode.directives.splice(index,1)
+        const condition = command
+        const consequent = complieElementAstNode(astNode)
+        let alternate;
+        
+        const {childrenNode} = astNode.parent;
+        const currentNodeIndex = childrenNode.findIndex(child => child === astNode)
+        let nextSiblingNodeIndex = currentNodeIndex + 1
+        for (; nextSiblingNodeIndex < childrenNode.length; nextSiblingNodeIndex++) {
+            const nextSiblingNode = childrenNode[nextSiblingNodeIndex]
+            if(nextSiblingNode.nodeType === AstNodeType.ELEMENT){
+                break
+            }
+        }
+        let nextElementSiblingNode = childrenNode[nextSiblingNodeIndex]
+        if(
+            nextElementSiblingNode.nodeType === AstNodeType.ELEMENT && 
+            (
+                getDirectiveMap(astNode.directives)["#else-if"] !== undefined || 
+                getDirectiveMap(astNode.directives)["#else"] !== undefined
+            )
+        ) {
+            alternate = complieElementAstNode(nextElementSiblingNode as ElementAstNode)
+            childrenNode.splice(currentNodeIndex + 1,nextSiblingNodeIndex - currentNodeIndex)
+        }
+
+        return `${condition} ? ${consequent} : ${alternate ? alternate : complieCommentAstNode({parent:astNode,nodeType:AstNodeType.COMMENT,content:""})}`
+    }
+
+    if(showCommand !== undefined) {
+        const [command,index] = showCommand
+        astNode.directives.splice(index,1)
+        const condition = command
+        return `renderShowCommand(${condition},() => ${complieElementAstNode(astNode)})`
+    }
 
     const propComplieResult = complieElementProp(astNode)
     const childrenComplieResult = complieElementChildrenAstNode(astNode)
-
-    if(forCommand !== undefined) {
-        const [args,source] = forCommand.split(/\sin\s/)
-        return `renderForCommand(${source},${args} => cvh("${astNode.tag}",NodeType.ELEMENT,null,${propComplieResult},${childrenComplieResult}))`
-    }
     return `cvh("${astNode.tag}",NodeType.ELEMENT,null,${propComplieResult},${childrenComplieResult})`
+}
+
+function getDirectiveMap(directives : Array<ElementDirective>) : object {
+    const directiveMap = {}
+    directives.map((directive,index) => {
+        const {name,value} = directive
+        directiveMap[name] = [value,index]
+    })
+    return directiveMap
 }
 
 function complieElementProp(astNode : ElementAstNode) : string {
     const {attributes,directives} = astNode;
     const attrs : Array<string> = []
     const events : Array<string> = []
-    attributes.forEach(attribute => attrs.push(`{attrName:"${attribute.name}",attrValue:"${attribute.value}"}`))
+    attributes.forEach(attribute => {
+        const {name,value} = attribute
+        let attrValue = `"${value}"`
+        if(name === "style") {
+            attrValue = JSON.parse(value)
+        }
+        attrs.push(`{attrName:"${name}",attrValue:${attrValue}}`)
+    })
     directives.forEach(directive => {
-        const {name} = directive
+        const {name,value} = directive
         if(name.startsWith("@")) {
             events.push(handlingEvent(directive))
         } else if(name.startsWith(":")) {
-            attrs.push(`{attrName:"${name.substring(1)}",attrValue:${directive.value}}`)
+            const attrName = name.substring(1)
+            let attrValue = value
+            if(attrName === "style") {
+                attrValue = JSON.parse(value)
+            }
+            attrs.push(`{attrName:"${attrName}",attrValue:${attrValue}}`)
         } else if(name.startsWith("#")) {
             const result = handlingCommand(directive)
             if(result) {
@@ -95,6 +152,8 @@ function handlingCommand({name,value} : ElementDirective) : string {
     const command = name.substring(1)
     let result = ""
     switch(command) {
+        case "mode":
+            break
         case "html":
             result = `{innerHTML:${value}}`
             break
