@@ -7,10 +7,10 @@ JSPP.createApp({
             return name
         }
         const contactClick = () => {
-            alert("contactClick")
+            console.log("contactClick")
         }
         const mouseenter = () => {
-            alert("mouseenter")
+            console.log("mouseenter")
         }
         return {
             userName: "用户名称",
