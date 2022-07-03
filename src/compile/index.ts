@@ -6,6 +6,12 @@ function complie(ctx : any,astNode : AstNode | null) : VirtualNode | null {
         return null
     }
     const code = `{
+        const {
+            cvh,
+            renderVirtualNode,
+            renderForCommand,
+            NodeType,
+        } = JSPP
         with(ctx) {
             return ${complieAstNode(astNode)}
         }
@@ -35,9 +41,24 @@ function complieAstNode(astNode : AstNode) : string {
 }
 
 function complieElementAstNode(astNode : ElementAstNode) : string {
+    const directives = astNode.directives.filter(directive => directive.name.startsWith("#"))
+    const directiveMap = {}
+    directives.forEach(directive => {
+        const {name,value} = directive
+        directiveMap[name] = value
+    })
+    const forCommand = directiveMap["#for"]
+    const ifCommand = directiveMap["#if"]
+    const showCommand = directiveMap["#show"]
+
     const propComplieResult = complieElementProp(astNode)
     const childrenComplieResult = complieElementChildrenAstNode(astNode)
-    return `cvh("${astNode.tag}",NodeType.ELEMENT,${propComplieResult},${childrenComplieResult})`
+
+    if(forCommand !== undefined) {
+        const [args,source] = forCommand.split(/\sin\s/)
+        return `renderForCommand(${source},${args} => cvh("${astNode.tag}",NodeType.ELEMENT,null,${propComplieResult},${childrenComplieResult}))`
+    }
+    return `cvh("${astNode.tag}",NodeType.ELEMENT,null,${propComplieResult},${childrenComplieResult})`
 }
 
 function complieElementProp(astNode : ElementAstNode) : string {
@@ -50,10 +71,10 @@ function complieElementProp(astNode : ElementAstNode) : string {
         if(name.startsWith("@")) {
             events.push(handlingEvent(directive))
         } else if(name.startsWith(":")) {
-            
+            attrs.push(`{attrName:"${name.substring(1)}",attrValue:${directive.value}}`)
         } else if(name.startsWith("#")) {
-            const [isAttr,result] = handlingCommand(directive)
-            if(isAttr) {
+            const result = handlingCommand(directive)
+            if(result) {
                 attrs.push(result)
             }
         }
@@ -70,27 +91,18 @@ function handlingEvent({name,value} : ElementDirective) : string {
     return `{eventName:"${eventName}",eventHandling:${eventHandling}}`
 }
 
-function handlingCommand({name,value} : ElementDirective) : [boolean,string] {
+function handlingCommand({name,value} : ElementDirective) : string {
     const command = name.substring(1)
-    let isAttr = false
     let result = ""
     switch(command) {
-        case "for":
-            break
-        case "if":
-            break
-        case "show":
-            break
         case "html":
-            isAttr = true
             result = `{innerHTML:${value}}`
             break
         case "text":
-            isAttr = true
             result = `{innerText:${value}}`
             break
     }
-    return [isAttr,result]
+    return result
 }
 
 function complieElementChildrenAstNode(astNode : ElementAstNode) : string {

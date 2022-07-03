@@ -1,4 +1,4 @@
-import { isObject } from "../../util"
+import { isArray, isNumber, isObject, isString } from "../../util"
 import {NodeType,NodeProp,VirtualNode} from "../virtual-node"
 
 function createNode(virtualNode : VirtualNode) : Node | undefined {
@@ -70,6 +70,30 @@ function renderVirtualNode(mountNode : Node | null,virtualNode : VirtualNode | n
   }
 }
 
+function renderForCommand(source : number | string | object | Array<any>,renderHandling : Function) : Array<VirtualNode> {
+  const virtualNodes : Array<VirtualNode> = []
+  if(isArray(source) || isString(source)) {
+    const data = source as any
+    for(let i = 0; i < data.length; i++) {
+      virtualNodes.push(renderHandling(data[i],i))
+    }
+  } else if(isObject(source)) {
+    const data = source as object
+    const dataKeys = Object.keys(data)
+    for(let i = 0; i < dataKeys.length; i++) {
+      const key = dataKeys[i]
+      virtualNodes.push(renderHandling(data[key],key))
+    }
+  } else if(isNumber(source)) {
+    const data = source as number
+    for(let i = 0; i < data; i++) {
+      virtualNodes.push(renderHandling(i))
+    }
+  }
+  return virtualNodes
+}
+
 export {
-  renderVirtualNode
+  renderVirtualNode,
+  renderForCommand
 }

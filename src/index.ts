@@ -1,6 +1,9 @@
-import { complie } from "./compile"
-import { NodeType,cvh,renderVirtualNode } from "./dom"
 import { parse } from "./parser"
+import { complie } from "./compile"
+import { NodeType,cvh,renderVirtualNode,renderForCommand } from "./dom"
+import { reactive } from "./reactive"
+import { updateHook } from "./hooks"
+import { Component } from "./component"
 
 function createApp(component : Component) {
     return {
@@ -12,8 +15,6 @@ function createApp(component : Component) {
             const template = container.innerHTML;
             const astNode = parse(template)
             const ctx = component.setUp()
-            ctx.cvh = cvh
-            ctx.NodeType = NodeType
             const virtualNode = complie(ctx,astNode)
             container.innerHTML = ""
             renderVirtualNode(container,virtualNode)
@@ -21,14 +22,15 @@ function createApp(component : Component) {
     }
 }
 
-createApp({
-    setUp() {
-        const contactClick = () => {
-            alert("contactClick")
-        }
-        return {
-            userName: "Test JSPP",
-            contactClick
-        }
-    }
-}).monut("#app")
+export const JSPP = (window["JSPP"] = {
+    createApp,
+    parse,
+    complie,
+    cvh,
+    renderVirtualNode,
+    renderForCommand,
+    NodeType,
+    reactive,
+    updateHook,
+})
+
