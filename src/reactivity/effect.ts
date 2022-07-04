@@ -18,8 +18,6 @@ class ReactiveEffect {
       return this.fn()
     } finally {
       activeEffect = this.parent
-      this.parent = null
-      this.active = false
     }
   }
 

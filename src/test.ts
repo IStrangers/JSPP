@@ -63,6 +63,7 @@ const obj = reactive({
 })
 
 effect(function(){
+    obj.age = Math.random()
     document.write(`用户名：${obj.userName},年龄：${obj.age}`)
 })
 
