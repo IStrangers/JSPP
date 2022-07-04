@@ -1,6 +1,8 @@
 import { complie } from "./compile"
 import {Jspp} from "./index"
 import { parse } from "./parser"
+import { effect } from "./reactivity/effect"
+import { reactive } from "./reactivity/reactive"
 
 // Jspp.createApp({
 //     setUp() {
@@ -23,34 +25,47 @@ import { parse } from "./parser"
 //         }
 //     }
 // }).monut("#app")
-Jspp.createApp({
-    setUp() {
-        let AstContent = ""
-        let cvhContent = ""
-        let htmlContent = ""
 
-        const codeInput = function(e : InputEvent) {
-            const template : string = (e.target as HTMLElement).innerText
-            const astNode = parse(template)
-            var cache : any = [];
-            AstContent = JSON.stringify(astNode,function(key,value) {
-                if (typeof value === 'object' && value !== null) {
-                    if (cache.indexOf(value) !== -1) {
-                        return;
-                    }
-                    cache.push(value);
-                }
-                return value;
-            })
-            const cvhCode = complie({},astNode)
-            cvhContent = JSON.stringify(cvhCode)
-        }
+// Jspp.createApp({
+//     setUp() {
+//         let AstContent = ""
+//         let cvhContent = ""
+//         let htmlContent = ""
 
-        return {
-            codeInput,
-            AstContent,
-            cvhContent,
-            htmlContent,
-        }
-    }
-}).monut("#app")
+//         const codeInput = function(e : InputEvent) {
+//             const template : string = (e.target as HTMLElement).innerText
+//             const astNode = parse(template)
+//             var cache : any = [];
+//             AstContent = JSON.stringify(astNode,function(key,value) {
+//                 if (typeof value === 'object' && value !== null) {
+//                     if (cache.indexOf(value) !== -1) {
+//                         return;
+//                     }
+//                     cache.push(value);
+//                 }
+//                 return value;
+//             })
+//             const cvhCode = complie({},astNode)
+//             cvhContent = JSON.stringify(cvhCode)
+//         }
+
+//         return {
+//             codeInput,
+//             AstContent,
+//             cvhContent,
+//             htmlContent,
+//         }
+//     }
+// }).monut("#app")
+const obj = reactive({
+    userName: "Jspp",
+    age: 0
+})
+
+effect(function(){
+    document.write(`用户名：${obj.userName},年龄：${obj.age}`)
+})
+
+setTimeout(function(){
+    obj.age = 100
+},1000)

@@ -16,7 +16,7 @@ class ReactiveEffect {
       this.parent = activeEffect
       activeEffect = this
       return this.fn()
-    } catch (error) {
+    } finally {
       activeEffect = this.parent
       this.parent = null
       this.active = false
@@ -39,16 +39,16 @@ function track<T extends object>(target : T,key : string | symbol,type : string)
   }
   let depsMap = targetMap.get(target)
   if(!depsMap) {
-    targetMap.set(target,depsMap = (new WeakMap()))
+    targetMap.set(target,depsMap = new Map())
   }
   let deps = depsMap.get(key)
   if(!deps) {
-    depsMap.set(key,(deps = new Set()))
+    depsMap.set(key,deps = new Set())
   }
   if(deps.has(activeEffect)) {
     return
   }
-  deps.push(activeEffect)
+  deps.add(activeEffect)
   activeEffect.deps.push(deps)
 }
 
