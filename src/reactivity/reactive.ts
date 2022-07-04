@@ -1,4 +1,5 @@
 import {isObject} from "../util"
+import { track, trigger } from "./effect"
 
 enum ReactiveAttribute {
     IS_REACTIVE = "__isReactive__"
@@ -19,14 +20,16 @@ function reactive<T extends object>(obj : T) : T {
             if(property === ReactiveAttribute.IS_REACTIVE){
                 return true
             }
+            track(target,property,"get")
             const val = Reflect.get(target,property,receiver)
             return isObject(val) ? reactive(val) : val
         },
         set: (target,property,value,receiver) => {
-            if(Reflect.get(target,property,receiver) === value) {
+            if(target[property] === value) {
                 return false
             }
             const val = Reflect.set(target,property,value,receiver)
+            trigger(target,property,oldValue,newValue,"set")
             return val
         }
     })

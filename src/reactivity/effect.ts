@@ -33,7 +33,7 @@ function effect(fn : Function) {
 
 const targetMap = new WeakMap()
 
-function track<T extends object>(target : T,key : string,type : string) {
+function track<T extends object>(target : T,key : string | symbol,type : string) {
   if(!activeEffect) {
     return
   }
@@ -41,19 +41,31 @@ function track<T extends object>(target : T,key : string,type : string) {
   if(!depsMap) {
     targetMap.set(target,depsMap = (new WeakMap()))
   }
-  let dep = depsMap.get(key)
-  if(!dep) {
-    depsMap.set(key,(dep = new Set()))
+  let deps = depsMap.get(key)
+  if(!deps) {
+    depsMap.set(key,(deps = new Set()))
   }
-  if(dep.has(activeEffect)) {
+  if(deps.has(activeEffect)) {
     return
   }
-  dep.push(activeEffect)
-  activeEffect.deps.push(dep)
+  deps.push(activeEffect)
+  activeEffect.deps.push(deps)
 }
 
-function trigger() {
-
+function trigger<T extends object>(target : T,key : string | symbol,oldValue : any,newValue : any,type : string) {
+  let depsMap = targetMap.get(target)
+  if(!depsMap) {
+    return
+  }
+  let deps : Set<ReactiveEffect> = depsMap.get(key)
+  if(!deps) {
+    return
+  }
+  deps && deps.forEach(reactiveEffect => {
+    if(activeEffect !== reactiveEffect) {
+      reactiveEffect.run()
+    }
+  });
 }
 
 export {
