@@ -24,11 +24,12 @@ function reactive<T extends object>(obj : T) : T {
             const val = Reflect.get(target,property,receiver)
             return isObject(val) ? reactive(val) : val
         },
-        set: (target,property,value,receiver) => {
-            if(target[property] === value) {
+        set: (target,property,newValue,receiver) => {
+            const oldValue = target[property]
+            if(oldValue === newValue) {
                 return false
             }
-            const val = Reflect.set(target,property,value,receiver)
+            const val = Reflect.set(target,property,newValue,receiver)
             trigger(target,property,oldValue,newValue,"set")
             return val
         }
