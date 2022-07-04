@@ -1,5 +1,6 @@
 import { NodeType, VirtualNode } from "../dom";
 import { AstNode, AstNodeType, CommentAstNode, ElementAstNode, ElementDirective, InterpolationAstNode, TextAstNode } from "../parser/ast";
+import { isNumber } from "../util";
 
 function complie(ctx : any,astNode : AstNode | null) : VirtualNode | null {
     if(astNode == null) {
@@ -115,7 +116,7 @@ function complieElementProp(astNode : ElementAstNode) : string {
         const {name,value} = attribute
         let attrValue = `"${value}"`
         if(name === "style") {
-            attrValue = JSON.parse(value)
+            attrValue = parseStyleValue(value)
         }
         attrs.push(`{attrName:"${name}",attrValue:${attrValue}}`)
     })
@@ -127,7 +128,7 @@ function complieElementProp(astNode : ElementAstNode) : string {
             const attrName = name.substring(1)
             let attrValue = value
             if(attrName === "style") {
-                attrValue = JSON.parse(value)
+                attrValue = parseStyleValue(value)
             }
             attrs.push(`{attrName:"${attrName}",attrValue:${attrValue}}`)
         } else if(name.startsWith("#")) {
@@ -138,6 +139,23 @@ function complieElementProp(astNode : ElementAstNode) : string {
         }
     })
     return `{attributes:[${attrs}],events:[${events}]}`
+}
+
+function parseStyleValue(styleValue : string) : string {
+    if(!styleValue) {
+        return "{}"
+    }
+    if(styleValue.startsWith("{") && styleValue.endsWith("}") ) {
+        return styleValue
+    }
+    const parseResult : Array<string> = []
+    const items = styleValue.split(";")
+    for(let i = 0; i < items.length; i++) {
+        const item = items[i]
+        const [key,value] = item.split(":")
+        parseResult.push(`${key}:${isNumber(value) ? value : `"${value}"`}`)
+    }
+    return `{${parseResult.join(",")}}`
 }
 
 function handlingEvent({name,value} : ElementDirective) : string {
