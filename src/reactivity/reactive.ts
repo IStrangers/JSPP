@@ -2,7 +2,8 @@ import {isObject} from "../util"
 import { track, trigger } from "./effect"
 
 enum ReactiveAttribute {
-    IS_REACTIVE = "__isReactive__"
+    IS_REACTIVE = "__isReactive__",
+    IS_REF = "__isRef__",
 }
 
 const reactiveMap = new WeakMap()
@@ -43,6 +44,7 @@ function isReactive<T extends object>(obj : T) : boolean {
 }
 
 export {
+    ReactiveAttribute,
     reactive,
     isReactive,
 }

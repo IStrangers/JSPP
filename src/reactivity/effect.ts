@@ -67,6 +67,13 @@ function track<T extends object>(target : T,key : string | symbol,type : string)
   if(!deps) {
     depsMap.set(key,deps = new Set())
   }
+  trackEffects(deps)
+}
+
+function trackEffects(deps : Set<ReactiveEffect>) {
+  if(!activeEffect) {
+    return
+  }
   if(deps.has(activeEffect)) {
     return
   }
@@ -79,10 +86,15 @@ function trigger<T extends object>(target : T,key : string | symbol,oldValue : a
   if(!depsMap) {
     return
   }
-  let copyDeps : Set<ReactiveEffect> = new Set(depsMap.get(key))
-  if(!copyDeps) {
+  let deps = depsMap.get(key)
+  if(!deps) {
     return
   }
+  triggerEffects(deps)
+}
+
+function triggerEffects(deps : Set<ReactiveEffect>) {
+  const copyDeps = new Set(deps)
   copyDeps && copyDeps.forEach(reactiveEffect => {
     if(activeEffect !== reactiveEffect) {
       reactiveEffect.scheduler ? reactiveEffect.scheduler() : reactiveEffect.run()
@@ -91,7 +103,10 @@ function trigger<T extends object>(target : T,key : string | symbol,oldValue : a
 }
 
 export {
+  ReactiveEffect,
   effect,
   track,
-  trigger
+  trackEffects,
+  trigger,
+  triggerEffects,
 }

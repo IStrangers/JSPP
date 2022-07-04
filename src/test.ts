@@ -1,8 +1,11 @@
 import { complie } from "./compile"
 import {Jspp} from "./index"
 import { parse } from "./parser"
+import { computed } from "./reactivity/computed"
 import { effect } from "./reactivity/effect"
 import { reactive } from "./reactivity/reactive"
+import { proxyRefs, ref, toRefs } from "./reactivity/ref"
+import { watch } from "./reactivity/watch"
 
 // Jspp.createApp({
 //     setUp() {
@@ -57,20 +60,74 @@ import { reactive } from "./reactivity/reactive"
 //         }
 //     }
 // }).monut("#app")
+
+// const obj = reactive({
+//     userName: "Jspp",
+//     age: 0
+// })
+
+// const renner = effect(function(){
+//     document.write(`用户名：${obj.userName},年龄：${obj.age}`)
+//     obj.age = Math.random()
+// },{
+//     scheduler: function(){
+//         renner()
+//     }
+// })
+
+// const obj = reactive({
+//     userName: "Jspp",
+//     age: 0
+// })
+
+// const context = computed({
+//     get:() =>{
+//         return `用户名：${obj.userName},年龄：${obj.age}`
+//     },
+//     set:() => {
+
+//     }
+// })
+
+// effect(function(){
+//     document.write(context.value)
+// })
+
+// setTimeout(function(){
+//     obj.age = 100
+// },1000)
+
+// const obj = reactive({
+//     userName: "Jspp",
+//     age: 0
+// })
+
+// watch(() => obj.age,(oldValue : any,newValue : any,onClear : Function) => {
+//     console.log(oldValue)
+//     console.log(newValue)
+// })
+
+// obj.age = 100
+
+// const obj = ref(true)
+
+// watch(() => obj.value,(oldValue : any,newValue : any,onClear : Function) => {
+//     console.log(oldValue)
+//     console.log(newValue)
+// })
+
+// obj.value = false
+
+
 const obj = reactive({
     userName: "Jspp",
     age: 0
 })
 
-const renner = effect(function(){
-    document.write(`用户名：${obj.userName},年龄：${obj.age}`)
-    obj.age = Math.random()
-},{
-    scheduler: function(){
-        renner()
-    }
-})
+const {userName,age} = toRefs(obj)
+console.log(userName.value)
+console.log(age.value)
 
-setTimeout(function(){
-    obj.age = 100
-},1000)
+const proxyRefsObj = proxyRefs({userName,age})
+console.log(proxyRefsObj.userName)
+console.log(proxyRefsObj.age)
