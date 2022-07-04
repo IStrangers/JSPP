@@ -1,4 +1,5 @@
 enum AstNodeType {
+  ROOT_NODE,
   ELEMENT,
   TEXT,
   COMMENT,

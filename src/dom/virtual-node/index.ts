@@ -14,6 +14,7 @@ interface NodeProp {
 }
 
 enum NodeType {
+  ROOT_NODE,
   ELEMENT,
   TEXT,
   NUMBER,

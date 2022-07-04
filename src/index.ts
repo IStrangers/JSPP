@@ -1,8 +1,7 @@
 import { parse } from "./parser"
 import { complie } from "./compile"
 import { NodeType,cvh,renderVirtualNode,renderForCommand,renderShowCommand } from "./dom"
-import { reactive } from "./reactive"
-import { updateHook } from "./hooks"
+import { reactive } from "./reactivity/reactive"
 import { Component } from "./component"
 
 function createApp(component : Component) {
@@ -22,7 +21,7 @@ function createApp(component : Component) {
     }
 }
 
-export const JSPP = (window["JSPP"] = {
+export const Jspp = (window["Jspp"] = {
     createApp,
     parse,
     complie,
@@ -32,6 +31,5 @@ export const JSPP = (window["JSPP"] = {
     renderShowCommand,
     NodeType,
     reactive,
-    updateHook,
 })
 

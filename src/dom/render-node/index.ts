@@ -57,7 +57,7 @@ function renderVirtualNode(mountNode : Node | null,virtualNode : VirtualNode | n
     return
   }
   let node
-  if(virtualNode.type === NodeType.FRAGMENT){
+  if(virtualNode.type === NodeType.ROOT_NODE || virtualNode.type === NodeType.FRAGMENT){
     node = mountNode
   } else {
     node = createNode(virtualNode)

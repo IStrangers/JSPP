@@ -4,30 +4,31 @@ import { isUppercaseStart,removeExtraSpaces } from "../util"
 interface ParseOptions {
   isRemoveExtraSpaces: boolean
   delimiters: {
-    commentStart: string,
-    commentEnd: string,
+    commentStart: string
+    commentEnd: string
     interpolationStart: string
     interpolationEnd: string
   }
 }
 
 interface ParseContext {
-  content : string,
-  options : ParseOptions,
-  isEnd: Function,
-  isElement: Function,
-  isInterpolation: Function,
-  isComment: Function,
-  isSelfClosing: Function,
-  forward: Function,
-  removeSpaces: Function,
-  parseElement: Function,
-  parseElementTag: Function,
-  parseElementAttribute: Function,
-  parseElementChildrenAstNode: Function,
-  parseInterpolation: Function,
-  parseComment: Function,
-  parseText: Function,
+  rootTag : string
+  content : string
+  options : ParseOptions
+  isEnd: Function
+  isRootNode: Function
+  isElement: Function
+  isInterpolation: Function
+  isComment: Function
+  forward: Function
+  removeSpaces: Function
+  parseElement: Function
+  parseElementTag: Function
+  parseElementAttribute: Function
+  parseElementChildrenAstNode: Function
+  parseInterpolation: Function
+  parseComment: Function
+  parseText: Function
 }
 
 function createDefaultParseOptions() : ParseOptions {
@@ -43,12 +44,17 @@ function createDefaultParseOptions() : ParseOptions {
 }
 
 function createParseContext(content : string,options : ParseOptions) : ParseContext {
-  content = `<RootNode>${content}</RootNode>`
+  const rootTag = "RootNode"
+  content = `<${rootTag}>${content}</${rootTag}>`
   return {
+    rootTag,
     content,
     options,
     isEnd: function() : boolean {
       return this.content.startsWith("</") || this.content.length === 0
+    },
+    isRootNode: function(tag : string) : boolean {
+      return this.rootTag === tag
     },
     isElement: function() : boolean {
       return this.content.startsWith("<")
@@ -58,13 +64,6 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
     },
     isComment: function() : boolean {
       return this.content.startsWith(this.options.delimiters.commentStart)
-    },
-    isSelfClosing: function(tag : string) : boolean {
-      return [
-        "area","base","br","col","embed",
-        "hr","img","input","link","meta",
-        "param","source","track","wbr"
-      ].includes(tag)
     },
     forward: function(length : number = 1) : void {
       this.content = this.content.slice(length)
@@ -89,7 +88,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
         this.parseElementTag(true)
       }
       thisNode.parent = parent
-      thisNode.nodeType = AstNodeType.ELEMENT
+      thisNode.nodeType = this.isRootNode(tag) ? AstNodeType.ROOT_NODE : AstNodeType.ELEMENT
       thisNode.tag = tag
       thisNode.isSelfClosing = isSelfClosing
       thisNode.isComponent = isComponent

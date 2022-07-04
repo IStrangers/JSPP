@@ -13,7 +13,7 @@ function complie(ctx : any,astNode : AstNode | null) : VirtualNode | null {
             renderForCommand,
             renderShowCommand,
             NodeType,
-        } = JSPP
+        } = Jspp
         with(ctx) {
             return ${complieAstNode(astNode)}
         }
@@ -26,6 +26,9 @@ function complieAstNode(astNode : AstNode) : string {
     let complieResult = ""
     const nodeType = astNode.nodeType
     switch(nodeType) {
+        case AstNodeType.ROOT_NODE:
+            complieResult = complieRootNode(astNode as ElementAstNode)
+            break
         case AstNodeType.ELEMENT:
             complieResult = complieElementAstNode(astNode as ElementAstNode)
             break
@@ -40,6 +43,10 @@ function complieAstNode(astNode : AstNode) : string {
             break
     }
     return complieResult
+}
+
+function complieRootNode(astNode : ElementAstNode) : string {
+    return `cvh(null,NodeType.ROOT_NODE,null,null,${complieElementChildrenAstNode(astNode)})`
 }
 
 function complieElementAstNode(astNode : ElementAstNode) : string {

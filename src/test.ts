@@ -1,6 +1,6 @@
-import {JSPP} from "./index"
+import {Jspp} from "./index"
 
-JSPP.createApp({
+Jspp.createApp({
     setUp() {
         const contacts = ["用户1","用户2","用户3"]
         const getClass = (name : any) => {

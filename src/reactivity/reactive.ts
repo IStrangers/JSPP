@@ -1,10 +1,22 @@
 import {isObject} from "../util"
-import {hooksContext} from "../hooks"
+
+enum ReactiveAttribute {
+    IS_REACTIVE = "__isReactive__"
+}
+
+const reactiveMap = new WeakMap()
 
 function reactive<T extends object>(obj : T) : T {
-    return new Proxy(obj,{
+    if(isReactive(obj)) {
+        return obj
+    }
+    let reactiveObj = reactiveMap.get(obj)
+    if(reactiveObj) {
+        return reactiveObj
+    }
+    reactiveObj = new Proxy(obj,{
         get: (target,property,receiver) => {
-            if(property === "__isReactive__"){
+            if(property === ReactiveAttribute.IS_REACTIVE){
                 return true
             }
             const val = Reflect.get(target,property,receiver)
@@ -15,12 +27,18 @@ function reactive<T extends object>(obj : T) : T {
                 return false
             }
             const val = Reflect.set(target,property,value,receiver)
-            hooksContext.updateHooks.forEach(hook => hook())
             return val
         }
-    });
+    })
+    reactiveMap.set(obj,reactiveObj)
+    return reactiveObj
+}
+
+function isReactive<T extends object>(obj : T) : boolean {
+    return obj && obj[ReactiveAttribute.IS_REACTIVE]
 }
 
 export {
-    reactive
+    reactive,
+    isReactive,
 }
