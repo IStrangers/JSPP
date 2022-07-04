@@ -181,10 +181,10 @@ function handlingCommand({name,value} : ElementDirective) : string {
         case "mode":
             break
         case "html":
-            result = `{innerHTML:${value}}`
+            result = `{attrName:"innerHTML",attrValue:${value}}`
             break
         case "text":
-            result = `{innerText:${value}}`
+            result = `{attrName:"innerText",attrValue:${value}}`
             break
     }
     return result

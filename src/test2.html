@@ -3,26 +3,26 @@
     <style>
       #app {
         display: flex;
+        flex-wrap: wrap;
       }
-      #app .cocontainer{
+      #app .container{
         border: 1px solid;
         border-radius: 4px;
+        width: 49.8%;
+        height: 450px;
       }
     </style>
     <body>
         <div id="app">
-            <div class="container">
-              
+            <div class="container" contenteditable="true" @input="codeInput">
             </div>
-            <div class="container">
-              
+            <div class="container" contenteditable="true">
+              {{AstContent}}
             </div>
-            <div class="container">
-              
+            <div class="container" contenteditable="true">
+              {{cvhContent}}
             </div>
-            <div class="container">
-              
-            </div>
+            <div class="container" contenteditable="true" #html="htmlContent"></div>
         </div>
     </body>
 </html>

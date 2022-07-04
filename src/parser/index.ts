@@ -115,7 +115,7 @@ function createParseContext(content : string,options : ParseOptions) : ParseCont
       while(!this.content.startsWith(">") && !this.content.startsWith("/>")) {
         const match = reg.exec(this.content)
         if(!match) {
-          continue
+          return [attributes,directives]
         }
         const name = match[0]
         let value = ""
