@@ -62,9 +62,13 @@ const obj = reactive({
     age: 0
 })
 
-effect(function(){
-    obj.age = Math.random()
+const renner = effect(function(){
     document.write(`用户名：${obj.userName},年龄：${obj.age}`)
+    obj.age = Math.random()
+},{
+    scheduler: function(){
+        renner()
+    }
 })
 
 setTimeout(function(){

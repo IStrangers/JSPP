@@ -6,7 +6,7 @@ class ReactiveEffect {
   public parent : ReactiveEffect | null  = null
   public deps : Array<Set<ReactiveEffect>> = []
   public active = true
-  constructor(public fn : Function) {
+  constructor(public fn : Function,public scheduler : Function | undefined) {
 
   }
 
@@ -15,17 +15,41 @@ class ReactiveEffect {
     try {
       this.parent = activeEffect
       activeEffect = this
+      clearReactiveEffect(this)
       return this.fn()
     } finally {
       activeEffect = this.parent
     }
   }
 
+  stop() {
+    if(this.active) {
+      this.active = false
+      clearReactiveEffect(this)
+    }
+  }
+
 }
 
-function effect(fn : Function) {
-  const reactiveEffect = new ReactiveEffect(fn)
+function clearReactiveEffect(reactiveEffect : ReactiveEffect) {
+  const {deps} = reactiveEffect
+  for(let i = 0; i < deps.length; i++) {
+    deps[i].delete(reactiveEffect)
+  }
+  deps.length = 0
+}
+
+interface EffectOptions {
+  scheduler? : Function
+}
+
+function effect(fn : Function,options : EffectOptions = {}) {
+  const { scheduler } = options
+  const reactiveEffect = new ReactiveEffect(fn,scheduler)
   reactiveEffect.run()
+  const runner = reactiveEffect.run.bind(reactiveEffect)
+  runner["reactiveEffect"] = reactiveEffect
+  return runner
 }
 
 
@@ -55,13 +79,13 @@ function trigger<T extends object>(target : T,key : string | symbol,oldValue : a
   if(!depsMap) {
     return
   }
-  let deps : Set<ReactiveEffect> = depsMap.get(key)
-  if(!deps) {
+  let copyDeps : Set<ReactiveEffect> = new Set(depsMap.get(key))
+  if(!copyDeps) {
     return
   }
-  deps && deps.forEach(reactiveEffect => {
+  copyDeps && copyDeps.forEach(reactiveEffect => {
     if(activeEffect !== reactiveEffect) {
-      reactiveEffect.run()
+      reactiveEffect.scheduler ? reactiveEffect.scheduler() : reactiveEffect.run()
     }
   });
 }
