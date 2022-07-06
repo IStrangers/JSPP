@@ -1,6 +1,6 @@
 import { isArray, isObject } from "../util"
 import { ReactiveEffect, trackEffects, triggerEffects } from "./effect"
-import { isReactive, reactive, ReactiveAttribute } from "./reactive"
+import { isReactive, reactive, ReactiveTagAttr } from "./reactive"
 
 function toReactiveValue(value : any) {
     if(isObject(value) && isReactive(value) === false) {
@@ -66,11 +66,11 @@ function proxyRefs<T extends object>(value : T) {
     return new Proxy(value,{
         get(target,key,recevier) {
             const r = Reflect.get(target,key,recevier)
-            return r[ReactiveAttribute.IS_REF] ? r.value : r
+            return r[ReactiveTagAttr.IS_REF] ? r.value : r
         },
         set(target,key,value,recevier) {
             let oldValue = target[key]
-            if(oldValue[ReactiveAttribute.IS_REF]) {
+            if(oldValue[ReactiveTagAttr.IS_REF]) {
                 oldValue.value = value
                 return true
             } else {

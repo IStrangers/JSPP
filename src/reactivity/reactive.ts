@@ -1,7 +1,7 @@
 import {isObject} from "../util"
 import { track, trigger } from "./effect"
 
-enum ReactiveAttribute {
+enum ReactiveTagAttr {
     IS_REACTIVE = "__isReactive__",
     IS_REF = "__isRef__",
 }
@@ -18,7 +18,7 @@ function reactive<T extends object>(obj : T) : T {
     }
     reactiveObj = new Proxy(obj,{
         get: (target,property,receiver) => {
-            if(property === ReactiveAttribute.IS_REACTIVE){
+            if(property === ReactiveTagAttr.IS_REACTIVE){
                 return true
             }
             track(target,property,"get")
@@ -40,11 +40,11 @@ function reactive<T extends object>(obj : T) : T {
 }
 
 function isReactive<T extends object>(obj : T) : boolean {
-    return obj && obj[ReactiveAttribute.IS_REACTIVE]
+    return obj && obj[ReactiveTagAttr.IS_REACTIVE]
 }
 
 export {
-    ReactiveAttribute,
+    ReactiveTagAttr,
     reactive,
     isReactive,
 }
